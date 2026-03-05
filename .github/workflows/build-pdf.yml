@@ -1,0 +1,36 @@
+name: Build PDF
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "File *.md"
+      - "Diagram *.png"
+      - "build_pdf.py"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y pandoc texlive-xetex texlive-fonts-recommended texlive-latex-extra
+
+      - name: Generate PDF
+        run: python3 build_pdf.py
+
+      - name: Commit generated PDF
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "docs: regenerate DM-DE-Refutation-of-the-Fundamental-Models.pdf [skip ci]"
+          file_pattern: "DM-DE-Refutation-of-the-Fundamental-Models.pdf"
