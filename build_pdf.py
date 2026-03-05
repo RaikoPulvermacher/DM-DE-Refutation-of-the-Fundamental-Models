@@ -11,7 +11,9 @@ import tempfile
 
 REPO_DIR = os.path.dirname(os.path.abspath(__file__))
 
+# All chapters in order, including the abstract as the first chapter
 CHAPTERS = [
+    "File 01: Abstract.md",
     "File 02: Local_vs_Global_c.md",
     "File 03: Derivation_Errors.md",
     "File 04: Void_3.3c_Example.md",
@@ -26,8 +28,8 @@ DIAGRAM_FILE = "Diagram v1.2.png"
 OUTPUT_PDF = "DM-DE-Refutation-of-the-Fundamental-Models.pdf"
 
 # Insert diagram after this chapter (0-based index into CHAPTERS list)
-# 0 = File 02, 1 = File 03, 2 = File 04: Void_3.3c_Example.md
-DIAGRAM_AFTER_CHAPTER = 2
+# 3 = File 04: Void_3.3c_Example.md
+DIAGRAM_AFTER_CHAPTER = 3
 
 
 def read_file(filename):
@@ -37,8 +39,11 @@ def read_file(filename):
 
 
 def clean_content(content):
-    """Remove navigation links and trailing whitespace."""
+    """Remove navigation links, copyright footers, HR dividers, and extra blank lines."""
     content = re.sub(r'\[←\s*Back to README\]\(README\.md\)\s*', "", content)
+    content = re.sub(r'©[^\n]*\n?', "", content)
+    # Remove bare horizontal rules (---) to avoid YAML metadata block ambiguity in pandoc
+    content = re.sub(r'^---$', "", content, flags=re.MULTILINE)
     content = re.sub(r'\n{3,}', "\n\n", content)
     return content.rstrip()
 
@@ -47,39 +52,53 @@ def extract_abstract():
     """Return the abstract body (without the '# Abstract' heading)."""
     content = read_file(ABSTRACT_FILE)
     content = clean_content(content)
-    # Remove the top-level heading line
     content = re.sub(r'^# Abstract\s*\n+', "", content)
-    # Remove trailing horizontal rule
     content = re.sub(r'\n+---\s*$', "", content)
     return content.strip()
 
 
 def build_yaml_front_matter(abstract_text):
     """Build the YAML front matter block for pandoc."""
-    # Indent each line of the abstract by two spaces for the YAML literal block
     indented = "\n".join("  " + line for line in abstract_text.splitlines())
-    return f"""\
----
-title: "DM-DE-Refutation of the Fundamental Models – A Structural Reinterpretation of Cosmology"
-author: "Raiko Pulvermacher"
-date: "2025"
-lang: en
-abstract: |
-{indented}
-documentclass: article
-classoption:
-  - a4paper
-geometry: "margin=2.5cm"
-linestretch: 1.2
-fontsize: 11pt
-numbersections: true
-toc: true
-toc-depth: 3
-colorlinks: true
-urlcolor: NavyBlue
-linkcolor: black
----
-"""
+    yaml = "---\n"
+    yaml += 'title: "DM-DE-Refutation of the Fundamental Models – A Structural Reinterpretation of Cosmology"\n'
+    yaml += 'author: "Raiko Pulvermacher"\n'
+    yaml += 'date: "2025"\n'
+    yaml += "lang: en\n"
+    yaml += "abstract: |\n"
+    yaml += indented + "\n"
+    yaml += "documentclass: article\n"
+    yaml += "classoption:\n"
+    yaml += "  - a4paper\n"
+    yaml += 'geometry: "margin=2.5cm"\n'
+    yaml += "linestretch: 1.2\n"
+    yaml += "fontsize: 11pt\n"
+    yaml += "numbersections: true\n"
+    yaml += "toc: true\n"
+    yaml += "toc-depth: 3\n"
+    yaml += "colorlinks: true\n"
+    yaml += "urlcolor: NavyBlue\n"
+    yaml += "linkcolor: black\n"
+    yaml += "header-includes:\n"
+    yaml += "  - \\usepackage{float}\n"
+    yaml += "  - \\floatplacement{figure}{H}\n"
+    yaml += "  - \\usepackage[justification=centering]{caption}\n"
+    yaml += "  - \\usepackage{newunicodechar}\n"
+    yaml += "  - \\newunicodechar{≠}{\\ensuremath{\\neq}}\n"
+    yaml += "---\n"
+    return yaml
+
+
+def build_license_section():
+    """Read LICENSE and return it as a final unnumbered section."""
+    content = read_file("LICENSE")
+    # Fix setext-style heading misinterpretation: insert blank lines around any ---
+    # that immediately follows a non-blank line (would otherwise become an H2 underline)
+    content = re.sub(r'([^\n])\n(---)\n', r'\1\n\n\2\n\n', content)
+    # Remove bare horizontal rules to avoid YAML metadata block ambiguity
+    content = re.sub(r'^---$', "", content, flags=re.MULTILINE)
+    content = re.sub(r'\n{3,}', "\n\n", content)
+    return "# License (PORL v1.0) {.unnumbered}\n\n" + content.strip()
 
 
 def main():
@@ -89,8 +108,7 @@ def main():
     diagram_path = os.path.join(REPO_DIR, DIAGRAM_FILE)
     diagram_md = (
         "\n\n"
-        "!["
-        "Diagram v1.2: Effective speed of light $c_{\\text{eff}}/c$ "
+        "![Effective speed of light $c_{\\text{eff}}/c$ "
         "as a function of relative distance – Void vs. Cluster"
         f"]({diagram_path})"
         "\n"
@@ -103,6 +121,8 @@ def main():
         parts.append(content)
         if i == DIAGRAM_AFTER_CHAPTER:
             parts.append(diagram_md)
+
+    parts.append(build_license_section())
 
     combined = "\n\n\\newpage\n\n".join(parts)
 
