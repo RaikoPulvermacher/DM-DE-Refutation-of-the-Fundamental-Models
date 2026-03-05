@@ -50,3 +50,7 @@ Pulvermacher, R. (16.12.2025). Tensor of Realities (TdR). Zenodo. https://doi.or
 ---
 
 [← Back to README](README.md)
+
+---
+
+© Raiko Pulvermacher – Licensed under the [PORL v1.0](LICENSE) (Pulvermacher Open Research License)

@@ -134,3 +134,7 @@ components superfluous.
 ---
 
 [← Back to README](README.md)
+
+---
+
+© Raiko Pulvermacher – Licensed under the [PORL v1.0](LICENSE) (Pulvermacher Open Research License)

@@ -84,7 +84,8 @@ These diagrams are central pieces of evidence for the new interpretation.
 ## 🔓 License
 
 This project is published under the **PORL License (Public Open Research License)**.  
-The license is fully documented at:
+The full license text is available in the [LICENSE](LICENSE) file.  
+The license is also documented at:
 
 - **PORL v1 – DOI:** https://doi.org/10.5281/zenodo.18757232  
 
@@ -141,3 +142,7 @@ X/Twitter: Raiko Pulvermacher
 TikTok: Raiko Pulvermacher
 
 #RaikoPulvermacher
+
+---
+
+© Raiko Pulvermacher – Licensed under the [PORL v1.0](LICENSE) (Pulvermacher Open Research License)

@@ -161,3 +161,7 @@ disappear as soon as the structural variability of spacetime is correctly accoun
 ---
 
 [← Back to README](README.md)
+
+---
+
+© Raiko Pulvermacher – Licensed under the [PORL v1.0](LICENSE) (Pulvermacher Open Research License)
